@@ -4,7 +4,7 @@ import "./App.css";
 
 const App = () => {
   const APP_ID = "81c93a38";
-  const APP_KEY = "32d36eb1f299f06f14e07cf48a742e97";
+  const APP_KEY = "4befbe261ecc7782c46b70f558a297eb";
 
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
@@ -19,6 +19,7 @@ const App = () => {
       `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
     );
     const data = await responce.json();
+    console.log(data);
     setRecipes(data.hits);
   };
 
