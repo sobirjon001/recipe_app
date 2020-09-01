@@ -19,11 +19,12 @@ const App = () => {
   }, []);
 
   useEffect(async () => {
-    const data = await { getRecipes };
-    console.log("happend");
-    console.log(data.hits);
-    setRecipes(data.hits);
-    setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
+    getRecipes();
+    // const data = await { getRecipes };
+    // console.log("happend");
+    // console.log(data.hits);
+    // setRecipes(data.hits);
+    // setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
     saveToStorage();
   }, [query]);
 
@@ -39,7 +40,8 @@ const App = () => {
     localStorage.setItem("recipe_recs", JSON.stringify(recipe_recs));
   };
 
-  const getRecipes = async () => {
+  // const getRecipes = async () => {
+  const getRecipes = () => {
     if (recipe_recs.includes((recipe_rec) => recipe_rec.title === query)) {
       alert("This recipe already saved. Please load it from saved recipes");
       setSearch("");
@@ -54,11 +56,22 @@ const App = () => {
       setSearch("");
       searchInput.current.focus();
     } else {
-      const responce = await fetch(
+      // const responce = await fetch(
+      fetch(
         `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
-      );
-      const data = await responce.json();
-      return await data;
+        // );
+      )
+        .then((rec) => rec.json())
+        .then((data) => {
+          console.log("happend");
+          console.log(data.hits);
+          setRecipes(data.hits);
+          console.log(data.hits);
+          setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
+        });
+
+      // const data = await responce.json();
+      // return await data;
       // console.log("happend");
       // console.log(data.hits);
       // console.log("happend 2");
