@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Recipe from "./Recipe";
 import "./App.css";
 
 const App = () => {
   const APP_ID = "41456eaf";
   const APP_KEY = "0c679c6c87d15f4a447a8c28afed63b2";
-  const input = document.querySelector(".search-bar");
+  const searchInput = useRef(null);
 
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
@@ -15,10 +15,16 @@ const App = () => {
   // load storage
   useEffect(() => {
     loadStorage();
+    console.log(recipe_recs);
   }, []);
 
   useEffect(async () => {
-    getRecipes();
+    const data = await { getRecipes };
+    console.log("happend");
+    console.log(data.hits);
+    setRecipes(data.hits);
+    setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
+    saveToStorage();
   }, [query]);
 
   const loadStorage = () => {
@@ -37,7 +43,7 @@ const App = () => {
     if (recipe_recs.includes((recipe_rec) => recipe_rec.title === query)) {
       alert("This recipe already saved. Please load it from saved recipes");
       setSearch("");
-      input.focus();
+      searchInput.current.focus();
     } else if (
       query === "" ||
       query === " " ||
@@ -46,18 +52,21 @@ const App = () => {
     ) {
       alert("Please wrigh valid recipe for cearch");
       setSearch("");
-      input.focus();
+      searchInput.current.focus();
     } else {
       const responce = await fetch(
         `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
       );
       const data = await responce.json();
-      console.log("happend");
-      console.log(data.hits);
-      setRecipes(data.hits);
+      return await data;
+      // console.log("happend");
+      // console.log(data.hits);
+      // console.log("happend 2");
+      // setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
 
-      setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
-      saveToStorage();
+      // console.log(recipe_recs);
+      // setRecipes(data.hits);
+      // saveToStorage();
     }
   };
 
@@ -75,6 +84,7 @@ const App = () => {
     <div className="App">
       <form className="search-form" onSubmit={getSearch}>
         <input
+          ref={searchInput}
           className="search-bar"
           type="text"
           value={search}
