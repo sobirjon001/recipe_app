@@ -9,29 +9,31 @@ const App = () => {
 
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
-  const [query, setQuery] = useState("chicken");
+  const [query, setQuery] = useState("start");
   const [recipe_recs, setRecip_recs] = useState([]);
-
-  // load storage
-  loadStorage(() => {
-    if (localStorage.getItem("recipe_recs")) {
-      setRecip_recs(JSON.parse(localStorage.getItem("recipe_recs")));
-    }
-  });
 
   useEffect(() => {
     getRecipes();
   }, [query]);
 
   useEffect(() => {
-    saveToStorage();
+    saveToStorage(recipe_recs);
   }, [recipe_recs]);
 
-  saveToStorage = () => {
+  useEffect(() => {
+    loadStorage();
+  }, []);
+  // load storage
+  const loadStorage = () => {
+    if (localStorage.getItem("recipe_recs")) {
+      setRecip_recs(JSON.parse(localStorage.getItem("recipe_recs")));
+    }
+  };
+  const saveToStorage = (recipe_recs) => {
     localStorage.setItem("recipe_recs", JSON.stringify(recipe_recs));
   };
 
-  getRecipes = () => {
+  const getRecipes = () => {
     if (recipe_recs.includes((recipe_rec) => recipe_rec.title === query)) {
       alert("This recipe already saved. Please load it from saved recipes");
       setSearch("");
@@ -45,6 +47,8 @@ const App = () => {
       alert("Please write valid recipe for search");
       setSearch("");
       searchInput.current.focus();
+    } else if (query === "start") {
+      alert("Welcome to my recipe app! Please search for a recipe");
     } else {
       fetch(
         `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
@@ -57,11 +61,11 @@ const App = () => {
     }
   };
 
-  updateSearch = (e) => {
+  const updateSearch = (e) => {
     setSearch(e.target.value);
   };
 
-  getSearch = (e) => {
+  const getSearch = (e) => {
     e.preventDafault();
     setQuery(search);
     setSearch("");
