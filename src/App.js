@@ -1,102 +1,97 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Recipe from "./Recipe";
 import "./App.css";
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      recipes: [],
-      search: "",
-      query: "chicken",
-      recipe_recs: [],
-      APP_ID: "41456eaf",
-      APP_KEY: "0c679c6c87d15f4a447a8c28afed63b2",
-    };
-    // this.loadStorage = this.loadStorage.bind(this);
-  }
+const App = () => {
+  const APP_ID = "41456eaf";
+  const APP_KEY = "0c679c6c87d15f4a447a8c28afed63b2";
+  const searchInput = useRef(null);
 
-  loadStorage() {
+  const [recipes, setRecipes] = useState([]);
+  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("chicken");
+  const [recipe_recs, setRecip_recs] = useState([]);
+
+  // load storage
+  loadStorage(() => {
     if (localStorage.getItem("recipe_recs")) {
-      this.setState({
-        recipe_recs: JSON.parse(localStorage.getItem("recipe_recs")),
-      });
+      setRecip_recs(JSON.parse(localStorage.getItem("recipe_recs")));
     }
-  }
+  });
 
-  render() {
-    this.state.recipes.map((recipe) => {
-      console.log(recipe);
-    });
-    return (
-      <div className="App">
-        <div className="search-form">
-          <input
-            className="search-bar"
-            type="text"
-            onChange={(e) => {
-              this.setState({ search: e.target.value });
-            }}
-          />
-          <button
-            className="search-button"
-            onClick={() => {
-              this.setState({ query: this.state.search });
-              this.setState({ search: "" });
-              this.getRecipes();
-            }}
-          >
-            Submit
-          </button>
-          <button className="search-button" onClick={this.saveToStorage}>
-            Save
-          </button>
-        </div>
-        <div className="recipes">
-          {this.state.recipes.map((recipe) => (
-            <Recipe recipe={recipe} key={recipe.recipe.label} />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    getRecipes();
+  }, [query]);
+
+  useEffect(() => {
+    saveToStorage();
+  }, [recipe_recs]);
+
+  saveToStorage = () => {
+    localStorage.setItem("recipe_recs", JSON.stringify(recipe_recs));
+  };
 
   getRecipes = () => {
-    if (
-      this.state.recipe_recs.includes(
-        (recipe_rec) => recipe_rec.title === this.state.query
-      )
-    ) {
+    if (recipe_recs.includes((recipe_rec) => recipe_rec.title === query)) {
       alert("This recipe already saved. Please load it from saved recipes");
-      this.setState({ search: "" });
+      setSearch("");
+      searchInput.current.focus();
     } else if (
-      this.state.query === "" ||
-      this.state.query === " " ||
-      this.state.query === "  " ||
-      this.state.query === "   "
+      query === "" ||
+      query === " " ||
+      query === "  " ||
+      query === "   "
     ) {
-      alert("Please wrigh valid recipe for cearch");
-      this.setState({ search: "" });
+      alert("Please write valid recipe for search");
+      setSearch("");
+      searchInput.current.focus();
     } else {
       fetch(
-        `https://api.edamam.com/search?q=${this.state.query}&app_id=${this.state.APP_ID}&app_key=${this.state.APP_KEY}`
+        `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
       )
         .then((rec) => rec.json())
         .then((data) => {
-          this.setState({ recipes: data.hits });
-          this.setState({
-            recipe_recs: [
-              ...this.state.recipe_recs,
-              { title: data.q, hits: data.hits },
-            ],
-          });
+          setRecipes(data.hits);
+          setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
         });
     }
   };
 
-  saveToStorage = () => {
-    localStorage.setItem("recipe_recs", JSON.stringify(this.state.recipe_recs));
+  updateSearch = (e) => {
+    setSearch(e.target.value);
   };
-}
+
+  getSearch = (e) => {
+    e.preventDafault();
+    setQuery(search);
+    setSearch("");
+  };
+
+  return (
+    <div className="App">
+      <form className="search-form" onSubmit={getSearch}>
+        <input
+          ref={searchInput}
+          className="search-bar"
+          type="text"
+          value={search}
+          onChange={updateSearch}
+        />
+        <input className="search-button" type="submit" />
+      </form>
+      <div className="recipes">
+        {recipes.map((recipe) => (
+          <Recipe
+            title={recipe.recipe.label}
+            calories={recipe.recipe.calories}
+            image={recipe.recipe.image}
+            key={recipe.recipe.label}
+            ingredients={recipe.recipe.ingredientLines}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default App;
