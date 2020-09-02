@@ -16,20 +16,28 @@ const App = () => {
     getRecipes();
   }, [query]);
 
+  useEffect(() => {
+    loadStorage();
+  }, []);
+
+  useEffect(() => {
+    console.log(recipe_recs);
+    saveToStorage();
+  }, [recipe_recs]);
+
   // load storage
   const loadStorage = () => {
     if (localStorage.getItem("recipe_recs")) {
       setRecip_recs(JSON.parse(localStorage.getItem("recipe_recs")));
     }
   };
-  loadStorage();
 
   const saveToStorage = () => {
     localStorage.setItem("recipe_recs", JSON.stringify(recipe_recs));
   };
 
   const getRecipes = () => {
-    if (recipe_recs.includes((recipe_rec) => recipe_rec.title === query)) {
+    if (recipe_recs.find((recipe_rec) => recipe_rec.title === query)) {
       alert("This recipe already saved. Please load it from saved recipes");
       setSearch("");
       searchInput.current.focus();
@@ -43,7 +51,7 @@ const App = () => {
       setSearch("");
       searchInput.current.focus();
     } else if (query === "start") {
-      alert("Welcome to my recipe app! Please search for a recipe");
+      return;
     } else {
       fetch(
         `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
@@ -52,13 +60,25 @@ const App = () => {
         .then((data) => {
           setRecipes(data.hits);
           setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
+          setQuery("start");
         });
     }
   };
 
+  const selectHandler = (e) => {
+    console.log(e);
+  };
+
   return (
     <div className="App">
-      <div className="search-form">
+      <form
+        className="search-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setQuery(search);
+          setSearch("");
+        }}
+      >
         <input
           ref={searchInput}
           className="search-bar"
@@ -68,24 +88,13 @@ const App = () => {
             setSearch(e.target.value);
           }}
         />
-        <button
-          className="search-button"
-          onClick={() => {
-            setQuery(search);
-            setSearch("");
-          }}
-        >
-          Submit
-        </button>
-        <button
-          className="search-button"
-          onClick={() => {
-            saveToStorage();
-          }}
-        >
-          Save
-        </button>
-      </div>
+        <input className="search-button" type="submit" />
+        <select name="saved_rec" className="saved_rec" onChange={selectHandler}>
+          {recipe_recs.map((sel) => (
+            <option value={sel.title}>{sel.title}</option>
+          ))}
+        </select>
+      </form>
       <div className="recipes">
         {recipes.map((recipe) => (
           <Recipe
