@@ -21,7 +21,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    console.log(recipe_recs);
     saveToStorage();
   }, [recipe_recs]);
 
@@ -66,7 +65,8 @@ const App = () => {
   };
 
   const selectHandler = (e) => {
-    console.log(e);
+    let chousen = recipe_recs.find((record) => record.title === e.target.value);
+    setRecipes(chousen.hits);
   };
 
   return (
@@ -89,9 +89,17 @@ const App = () => {
           }}
         />
         <input className="search-button" type="submit" />
-        <select name="saved_rec" className="saved_rec" onChange={selectHandler}>
-          {recipe_recs.map((sel) => (
-            <option value={sel.title}>{sel.title}</option>
+        <select
+          className="saved_rec search-button"
+          onChange={(e) => {
+            e.persist();
+            selectHandler(e);
+          }}
+        >
+          {recipe_recs.map((option) => (
+            <option key={option.title} value={option.title}>
+              {option.title}
+            </option>
           ))}
         </select>
       </form>
