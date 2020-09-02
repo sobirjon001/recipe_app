@@ -17,10 +17,6 @@ const App = () => {
   }, [query]);
 
   useEffect(() => {
-    saveToStorage(recipe_recs);
-  }, [recipe_recs]);
-
-  useEffect(() => {
     loadStorage();
   }, []);
   // load storage
@@ -61,27 +57,35 @@ const App = () => {
     }
   };
 
-  const updateSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  const getSearch = (e) => {
-    e.preventDafault();
-    setQuery(search);
-    setSearch("");
-  };
-
   return (
     <div className="App">
-      <form className="search-form" onSubmit={getSearch}>
+      <form
+        className="search-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setQuery(search);
+          setSearch("");
+        }}
+      >
         <input
           ref={searchInput}
           className="search-bar"
           type="text"
           value={search}
-          onChange={updateSearch}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
         />
         <input className="search-button" type="submit" />
+        <button
+          className="search-button"
+          onClick={(e) => {
+            e.preventDefault();
+            saveToStorage();
+          }}
+        >
+          Save
+        </button>
       </form>
       <div className="recipes">
         {recipes.map((recipe) => (
