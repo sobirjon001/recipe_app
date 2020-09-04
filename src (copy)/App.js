@@ -10,7 +10,7 @@ const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("start");
-  const [recipe_recs, setRecipe_recs] = useState([]);
+  const [recipe_recs, setRecip_recs] = useState([]);
 
   useEffect(() => {
     getRecipes();
@@ -24,16 +24,10 @@ const App = () => {
     saveToStorage();
   }, [recipe_recs]);
 
-  useEffect(() => {
-    fn();
-  }, [recipes]);
-
-  const fn = () => {};
-
   // load storage
   const loadStorage = () => {
     if (localStorage.getItem("recipe_recs")) {
-      setRecipe_recs(JSON.parse(localStorage.getItem("recipe_recs")));
+      setRecip_recs(JSON.parse(localStorage.getItem("recipe_recs")));
     }
   };
 
@@ -64,7 +58,7 @@ const App = () => {
         .then((rec) => rec.json())
         .then((data) => {
           setRecipes(data.hits);
-          setRecipe_recs(...recipe_recs, { title: data.q, hits: data.hits });
+          setRecip_recs([...recipe_recs, { title: data.q, hits: data.hits }]);
           setQuery("start");
         });
     }
@@ -79,24 +73,6 @@ const App = () => {
     } else {
       return;
     }
-  };
-
-  const likeHandle = (i) => {
-    const list = recipes.concat();
-    list.map((item, index) => {
-      if (index == i) {
-        item.bookmarked = !recipes[i].bookmarked;
-      }
-    });
-    setRecipes(list);
-    updateLikesToRecs(list);
-  };
-
-  const updateLikesToRecs = (list) => {
-    const index = recipe_recs.findIndex(
-      (rec) => rec.recipe.label === list.recipe.label
-    );
-    console.log(index);
   };
 
   return (
@@ -135,19 +111,13 @@ const App = () => {
         </select>
       </form>
       <div className="recipes">
-        {recipes.map((recipe, index) => (
+        {recipes.map((recipe) => (
           <Recipe
             title={recipe.recipe.label}
             calories={recipe.recipe.calories}
             image={recipe.recipe.image}
             key={recipe.recipe.label}
             ingredients={recipe.recipe.ingredientLines}
-            liked={recipe.bookmarked}
-            index={index}
-            onClick={(e) => {
-              e.persist();
-              likeHandle(e.target.attributes.value.value);
-            }}
           />
         ))}
       </div>

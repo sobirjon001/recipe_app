@@ -1,17 +1,22 @@
 import React from "react";
 import style from "./recipe.module.css";
+import like from "./img/001-like.svg";
+import thumb from "./img/002-thumb-up.svg";
 
 const Recipe = (props) => {
   return (
     <div className={style.recipe}>
       <h1>{props.title}</h1>
-      <ol>
-        {props.ingredients.map((ingredient, index) => (
-          <li key={index}>{ingredient}</li>
-        ))}
-      </ol>
-      <p>Calories: {props.calories}</p>
       <img className={style.image} src={props.image} alt="" />
+      <p>Calories: {props.calories}</p>
+      <img
+        src={props.liked ? thumb : like}
+        alt=""
+        className={style.like}
+        value={props.index}
+        onClick={props.onClick}
+      />
+      <p>{props.ingredients.length} ingeadients</p>
     </div>
   );
 };
