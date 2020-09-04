@@ -10,7 +10,7 @@ const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("start");
-  const [recipe_recs, setRecipe_recs] = useState([]);
+  const [recipe_recs, setRecipe_recs] = useState([{ title: "init" }]);
 
   useEffect(() => {
     getRecipes();
@@ -22,13 +22,16 @@ const App = () => {
 
   useEffect(() => {
     saveToStorage();
+    fn();
   }, [recipe_recs]);
 
   useEffect(() => {
-    fn();
+    // fn();
   }, [recipes]);
 
-  const fn = () => {};
+  const fn = () => {
+    console.log(recipe_recs);
+  };
 
   // load storage
   const loadStorage = () => {
@@ -64,7 +67,12 @@ const App = () => {
         .then((rec) => rec.json())
         .then((data) => {
           setRecipes(data.hits);
-          setRecipe_recs(...recipe_recs, { title: data.q, hits: data.hits });
+          recipe_recs.title === "init"
+            ? setRecipe_recs({ title: data.q, hits: data.hits })
+            : setRecipe_recs(...recipe_recs, {
+                title: data.q,
+                hits: data.hits,
+              });
           setQuery("start");
         });
     }
@@ -127,11 +135,13 @@ const App = () => {
           }}
         >
           <option value="initial">Please chouse</option>
-          {recipe_recs.map((option) => (
-            <option key={option.title} value={option.title}>
-              {option.title}
-            </option>
-          ))}
+          {recipe_recs.title === "init"
+            ? null
+            : recipe_recs.map((option) => (
+                <option key={option.title} value={option.title}>
+                  {option.title}
+                </option>
+              ))}
         </select>
       </form>
       <div className="recipes">
