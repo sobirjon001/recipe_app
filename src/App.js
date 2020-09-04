@@ -65,8 +65,14 @@ const App = () => {
   };
 
   const selectHandler = (e) => {
-    let chousen = recipe_recs.find((record) => record.title === e.target.value);
-    setRecipes(chousen.hits);
+    if (e.target.value !== "initial") {
+      let chousen = recipe_recs.find(
+        (record) => record.title === e.target.value
+      );
+      setRecipes(chousen.hits);
+    } else {
+      return;
+    }
   };
 
   return (
@@ -96,6 +102,7 @@ const App = () => {
             selectHandler(e);
           }}
         >
+          <option value="initial">Please chouse</option>
           {recipe_recs.map((option) => (
             <option key={option.title} value={option.title}>
               {option.title}
