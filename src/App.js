@@ -22,7 +22,12 @@ const App = () => {
 
   useEffect(() => {
     saveToStorage();
+    filter();
   }, [recipe_recs]);
+
+  const fn = () => {
+    console.log(recipe_recs);
+  };
 
   // load storage
   const loadStorage = () => {
@@ -36,7 +41,7 @@ const App = () => {
   };
 
   const getRecipes = () => {
-    if (recipe_recs.find((recipe_rec) => recipe_rec.title === query)) {
+    if (recipe_recs.find((recipe_rec) => recipe_rec.q === query)) {
       alert("This recipe already saved. Please load it from saved recipes");
       setSearch("");
       searchInput.current.focus();
@@ -57,28 +62,21 @@ const App = () => {
       )
         .then((rec) => rec.json())
         .then((data) => {
-          setRecipes(data.hits);
-          setRecipe_recs([
-            ...recipe_recs,
-            {
-              title: data.q,
-              hits: data.hits,
-            },
-          ]);
+          const loaded = [];
+          data.hits.forEach((entry) => {
+            entry = { ...entry, ...{ q: data.q } };
+            loaded.push(entry);
+          });
+          setRecipes(loaded);
+          setRecipe_recs([...recipe_recs, ...loaded]);
           setQuery("start");
         });
     }
   };
 
   const loadLiked = () => {
-    const allRecs = [];
     const likedRecs = [];
-    recipe_recs.map((recs) => {
-      recs.hits.map((obj) => {
-        allRecs.push(obj);
-      });
-    });
-    allRecs.forEach((rec) => {
+    recipe_recs.forEach((rec) => {
       if (rec.bookmarked) {
         likedRecs.push(rec);
       }
@@ -92,34 +90,42 @@ const App = () => {
     } else if (e.target.value == "liked") {
       loadLiked();
     } else {
-      const chousen = recipe_recs.find(
-        (record) => record.title === e.target.value
+      const chousen = recipe_recs.filter(
+        (record) => record.q === e.target.value
       );
-      setRecipes(chousen.hits);
+      setRecipes(chousen);
     }
   };
 
-  const likeHandle = (i) => {
+  const likeHandle = (title) => {
     const list = recipes.concat();
-    list.map((item, index) => {
-      if (index == i) {
-        item.bookmarked = !recipes[i].bookmarked;
+    list.forEach((item, index) => {
+      if (item.recipe.label == title) {
+        item.bookmarked = recipes[index].bookmarked;
+        setRecipes(list);
       }
     });
-    setRecipes(list);
-    updateLikesToRecs(list);
+
+    const listRec = recipe_recs.concat();
+    listRec.forEach((item, index) => {
+      if (item.recipe.label == title) {
+        item.bookmarked = !recipe_recs[index].bookmarked;
+      }
+    });
+    setRecipe_recs(listRec);
   };
 
-  const updateLikesToRecs = (list) => {
-    // find index of currrent recipe array to save liked changes to
-    const index = recipe_recs.findIndex(
-      (rec) => rec.hits[0].recipe.label === list[0].recipe.label
-    );
-    // Apply changes to storage
-    const records = recipe_recs.concat();
-    const tempTitle = records[index].title;
-    records.splice(index, 1, { title: tempTitle, hits: list });
-    setRecipe_recs(records);
+  const filter = () => {
+    let x = Object.assign({}, recipe_recs[0]);
+    const options = [x.q];
+    recipe_recs.forEach((rec) => {
+      if (rec.q === x.q) {
+      } else if (rec.q != x) {
+        options.push(rec.q);
+        x = rec.q;
+      }
+    });
+    return options;
   };
 
   return (
@@ -151,11 +157,13 @@ const App = () => {
         >
           <option value="initial">Please chouse</option>
           <option value="liked">Liked Recipes</option>
-          {recipe_recs.map((option) => (
-            <option key={option.title} value={option.title}>
-              {option.title}
-            </option>
-          ))}
+          {filter().map((option) =>
+            option ? (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ) : null
+          )}
         </select>
       </form>
       <div className="recipes">
@@ -170,7 +178,7 @@ const App = () => {
             index={index}
             onClick={(e) => {
               e.persist();
-              likeHandle(e.target.attributes.value.value);
+              likeHandle(e.target.parentElement.children[0].innerText);
             }}
           />
         ))}
