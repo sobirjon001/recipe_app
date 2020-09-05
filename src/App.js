@@ -10,7 +10,7 @@ const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("start");
-  const [recipe_recs, setRecipe_recs] = useState([{ title: "init" }]);
+  const [recipe_recs, setRecipe_recs] = useState([]);
 
   useEffect(() => {
     getRecipes();
@@ -22,16 +22,7 @@ const App = () => {
 
   useEffect(() => {
     saveToStorage();
-    fn();
   }, [recipe_recs]);
-
-  useEffect(() => {
-    // fn();
-  }, [recipes]);
-
-  const fn = () => {
-    console.log(recipe_recs);
-  };
 
   // load storage
   const loadStorage = () => {
@@ -67,25 +58,44 @@ const App = () => {
         .then((rec) => rec.json())
         .then((data) => {
           setRecipes(data.hits);
-          recipe_recs.title === "init"
-            ? setRecipe_recs({ title: data.q, hits: data.hits })
-            : setRecipe_recs(...recipe_recs, {
-                title: data.q,
-                hits: data.hits,
-              });
+          setRecipe_recs([
+            ...recipe_recs,
+            {
+              title: data.q,
+              hits: data.hits,
+            },
+          ]);
           setQuery("start");
         });
     }
   };
 
+  const loadLiked = () => {
+    const allRecs = [];
+    const likedRecs = [];
+    recipe_recs.map((recs) => {
+      recs.hits.map((obj) => {
+        allRecs.push(obj);
+      });
+    });
+    allRecs.forEach((rec) => {
+      if (rec.bookmarked) {
+        likedRecs.push(rec);
+      }
+    });
+    setRecipes(likedRecs);
+  };
+
   const selectHandler = (e) => {
-    if (e.target.value !== "initial") {
-      let chousen = recipe_recs.find(
+    if (e.target.value == "initial") {
+      return;
+    } else if (e.target.value == "liked") {
+      loadLiked();
+    } else {
+      const chousen = recipe_recs.find(
         (record) => record.title === e.target.value
       );
       setRecipes(chousen.hits);
-    } else {
-      return;
     }
   };
 
@@ -101,10 +111,15 @@ const App = () => {
   };
 
   const updateLikesToRecs = (list) => {
+    // find index of currrent recipe array to save liked changes to
     const index = recipe_recs.findIndex(
-      (rec) => rec.recipe.label === list.recipe.label
+      (rec) => rec.hits[0].recipe.label === list[0].recipe.label
     );
-    console.log(index);
+    // Apply changes to storage
+    const records = recipe_recs.concat();
+    const tempTitle = records[index].title;
+    records.splice(index, 1, { title: tempTitle, hits: list });
+    setRecipe_recs(records);
   };
 
   return (
@@ -135,13 +150,12 @@ const App = () => {
           }}
         >
           <option value="initial">Please chouse</option>
-          {recipe_recs.title === "init"
-            ? null
-            : recipe_recs.map((option) => (
-                <option key={option.title} value={option.title}>
-                  {option.title}
-                </option>
-              ))}
+          <option value="liked">Liked Recipes</option>
+          {recipe_recs.map((option) => (
+            <option key={option.title} value={option.title}>
+              {option.title}
+            </option>
+          ))}
         </select>
       </form>
       <div className="recipes">
