@@ -77,7 +77,7 @@ const App = () => {
         likedRecs.push(rec);
       }
     });
-    if (!likedRecs.includes([])) {
+    if (likedRecs.length == 0) {
       alert("You didn't like any recipe yet");
     } else {
       setRecipes(likedRecs);
