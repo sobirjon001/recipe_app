@@ -22,12 +22,8 @@ const App = () => {
 
   useEffect(() => {
     saveToStorage();
-    filter();
+    selectFilter();
   }, [recipe_recs]);
-
-  const fn = () => {
-    console.log(recipe_recs);
-  };
 
   // load storage
   const loadStorage = () => {
@@ -81,7 +77,11 @@ const App = () => {
         likedRecs.push(rec);
       }
     });
-    setRecipes(likedRecs);
+    if (!likedRecs.includes([])) {
+      alert("You didn't like any recipe yet");
+    } else {
+      setRecipes(likedRecs);
+    }
   };
 
   const selectHandler = (e) => {
@@ -115,7 +115,7 @@ const App = () => {
     setRecipe_recs(listRec);
   };
 
-  const filter = () => {
+  const selectFilter = () => {
     let x = Object.assign({}, recipe_recs[0]);
     const options = [x.q];
     recipe_recs.forEach((rec) => {
@@ -157,7 +157,7 @@ const App = () => {
         >
           <option value="initial">Please chouse</option>
           <option value="liked">Liked Recipes</option>
-          {filter().map((option) =>
+          {selectFilter().map((option) =>
             option ? (
               <option key={option} value={option}>
                 {option}
