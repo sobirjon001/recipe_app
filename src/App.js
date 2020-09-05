@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Recipe from "./Recipe";
 import "./App.css";
+import ItemRecipe from "./ItemRecipe";
 
 const App = () => {
   const APP_ID = "41456eaf";
@@ -11,6 +12,7 @@ const App = () => {
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("start");
   const [recipe_recs, setRecipe_recs] = useState([]);
+  const [item_recipe, setItem_recipe] = useState({ active: false, recipe: {} });
 
   useEffect(() => {
     getRecipes();
@@ -24,6 +26,14 @@ const App = () => {
     saveToStorage();
     selectFilter();
   }, [recipe_recs]);
+
+  useEffect(() => {
+    // fn();
+  }, [item_recipe]);
+
+  // const fn = () => {
+  //   console.log(item_recipe);
+  // };
 
   // load storage
   const loadStorage = () => {
@@ -97,22 +107,31 @@ const App = () => {
     }
   };
 
-  const likeHandle = (title) => {
+  const clickHandle = (e) => {
     const list = recipes.concat();
-    list.forEach((item, index) => {
-      if (item.recipe.label == title) {
-        item.bookmarked = recipes[index].bookmarked;
-        setRecipes(list);
-      }
-    });
-
     const listRec = recipe_recs.concat();
-    listRec.forEach((item, index) => {
-      if (item.recipe.label == title) {
-        item.bookmarked = !recipe_recs[index].bookmarked;
-      }
-    });
-    setRecipe_recs(listRec);
+    if (e.target.localName === "img") {
+      const title = e.target.parentElement.children[0].innerText;
+      list.forEach((item, index) => {
+        if (item.recipe.label == title) {
+          item.bookmarked = recipes[index].bookmarked;
+          setRecipes(list);
+        }
+      });
+
+      listRec.forEach((item, index) => {
+        if (item.recipe.label == title) {
+          item.bookmarked = !recipe_recs[index].bookmarked;
+        }
+      });
+      setRecipe_recs(listRec);
+    } else if (e.target.localName === "div") {
+      const title = e.target.children[0].innerText;
+      const x = list.find((item) => item.recipe.label == title);
+      setItem_recipe({ active: !item_recipe.active, recipe: x });
+    } else if (e.target.localName === "button") {
+      setItem_recipe({ active: !item_recipe.active, recipe: {} });
+    }
   };
 
   const selectFilter = () => {
@@ -126,6 +145,44 @@ const App = () => {
       }
     });
     return options;
+  };
+
+  const recipesRender = () => {
+    if (!item_recipe.active) {
+      const x = recipes.map((recipe, index) => (
+        <Recipe
+          title={recipe.recipe.label}
+          calories={recipe.recipe.calories}
+          image={recipe.recipe.image}
+          key={recipe.recipe.label}
+          ingredients={recipe.recipe.ingredientLines}
+          liked={recipe.bookmarked}
+          index={index}
+          onClick={(e) => {
+            e.persist();
+            clickHandle(e);
+          }}
+        />
+      ));
+      return x;
+    } else {
+      const y = Object.assign(item_recipe.recipe);
+      const x = (
+        <ItemRecipe
+          image={y.recipe.image}
+          title={y.recipe.label}
+          liked={y.bookmarked}
+          calories={y.recipe.calories}
+          ingredients={y.recipe.ingredients}
+          url={y.recipe.url}
+          onClick={(e) => {
+            e.persist();
+            clickHandle(e);
+          }}
+        />
+      );
+      return x;
+    }
   };
 
   return (
@@ -166,23 +223,7 @@ const App = () => {
           )}
         </select>
       </form>
-      <div className="recipes">
-        {recipes.map((recipe, index) => (
-          <Recipe
-            title={recipe.recipe.label}
-            calories={recipe.recipe.calories}
-            image={recipe.recipe.image}
-            key={recipe.recipe.label}
-            ingredients={recipe.recipe.ingredientLines}
-            liked={recipe.bookmarked}
-            index={index}
-            onClick={(e) => {
-              e.persist();
-              likeHandle(e.target.parentElement.children[0].innerText);
-            }}
-          />
-        ))}
-      </div>
+      <div className="recipes">{recipesRender()}</div>
     </div>
   );
 };

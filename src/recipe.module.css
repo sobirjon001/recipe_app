@@ -15,9 +15,59 @@
   border-radius: 10%;
   max-width: 90%;
   max-height: 90%;
+  pointer-events: none;
+}
+
+.noPointerEv {
+  pointer-events: none;
 }
 
 .like {
   width: 20px;
   height: auto;
+}
+
+.itemRecipe {
+  border-radius: 10px;
+  box-shadow: 0px 5px 20px dimgray;
+  margin: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background: white;
+  align-items: center;
+  min-width: 40%;
+}
+
+.titleContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.closeBtn {
+  background: lightcoral;
+  border: none;
+  margin: 5px;
+  padding: 10px 20px;
+  color: white;
+  text-decoration: none;
+}
+
+.ingredientsListContainer {
+  width: 100%;
+  display: flex;
+}
+.ingrList {
+  padding: 5px;
+}
+
+.listContainer {
+  display: flex;
+}
+
+.ingrImage {
+  width: 80px;
+  height: 80px;
 }
