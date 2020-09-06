@@ -1,4 +1,9 @@
+This progect was made by Dev Ed tutorila for training purposes from https://www.youtube.com/watch?v=U9T6YkEDkMo.
+It was modified by me adding more capabilities. 
+It is my pleasure to hear any suggestion to improve. Thank you for interesting in my work!
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
 
 ## Available Scripts
 
