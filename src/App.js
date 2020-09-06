@@ -27,14 +27,6 @@ const App = () => {
     selectFilter();
   }, [recipe_recs]);
 
-  useEffect(() => {
-    // fn();
-  }, [item_recipe]);
-
-  // const fn = () => {
-  //   console.log(item_recipe);
-  // };
-
   // load storage
   const loadStorage = () => {
     if (localStorage.getItem("recipe_recs")) {
