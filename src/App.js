@@ -93,7 +93,7 @@ const App = () => {
   };
 
   const selectHandler = (e) => {
-    if (e.target.value == "initial") {
+    if (e.target.value == "init") {
       return;
     } else if (e.target.value == "liked") {
       loadLiked();
@@ -210,7 +210,9 @@ const App = () => {
             selectHandler(e);
           }}
         >
-          <option value="initial">Please chouse</option>
+          <option hidden value="init">
+            Load saved
+          </option>
           <option value="liked">Liked Recipes</option>
           {selectFilter().map((option) =>
             option ? (
