@@ -132,6 +132,19 @@ const App = () => {
     }
   };
 
+  const deleteHandler = () => {
+    const a = recipe_recs.concat();
+    const c = recipes[0].q;
+    recipe_recs.map((b) => {
+      if (b.q === c) {
+        let i = a.findIndex((v) => v.q === c);
+        a.splice(i, 1); // mutating a that's why findIndex
+      }
+    });
+    setRecipe_recs(a);
+    setRecipes([]);
+  };
+
   const selectFilter = () => {
     let x = Object.assign({}, recipe_recs[0]);
     const options = [x.q];
@@ -222,6 +235,15 @@ const App = () => {
             ) : null
           )}
         </select>
+        <button
+          className="search-button"
+          onClick={(e) => {
+            e.preventDefault();
+            deleteHandler();
+          }}
+        >
+          Delete current recipes
+        </button>
       </form>
       <div className="recipes">{recipesRender()}</div>
     </div>
