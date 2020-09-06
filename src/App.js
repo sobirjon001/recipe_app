@@ -46,7 +46,7 @@ const App = () => {
     localStorage.setItem("recipe_recs", JSON.stringify(recipe_recs));
   };
 
-  const getRecipes = () => {
+  const getRecipes = async () => {
     if (recipe_recs.find((recipe_rec) => recipe_rec.q === query)) {
       alert("This recipe already saved. Please load it from saved recipes");
       setSearch("");
@@ -63,20 +63,18 @@ const App = () => {
     } else if (query === "start") {
       return;
     } else {
-      fetch(
+      const responce = await fetch(
         `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
-      )
-        .then((rec) => rec.json())
-        .then((data) => {
-          const loaded = [];
-          data.hits.forEach((entry) => {
-            entry = { ...entry, ...{ q: data.q } };
-            loaded.push(entry);
-          });
-          setRecipes(loaded);
-          setRecipe_recs([...recipe_recs, ...loaded]);
-          setQuery("start");
-        });
+      );
+      const data = await responce.json();
+      const loaded = [];
+      data.hits.forEach((entry) => {
+        entry = { ...entry, ...{ q: data.q } };
+        loaded.push(entry);
+      });
+      setRecipes(loaded);
+      setRecipe_recs([...recipe_recs, ...loaded]);
+      setQuery("start");
     }
   };
 
