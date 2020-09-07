@@ -125,16 +125,31 @@ const App = () => {
   };
 
   const deleteHandler = () => {
-    const a = recipe_recs.concat();
-    const c = recipes[0].q;
-    recipe_recs.map((b) => {
-      if (b.q === c) {
-        let i = a.findIndex((v) => v.q === c);
-        a.splice(i, 1); // mutating a that's why findIndex
-      }
-    });
-    setRecipe_recs(a);
-    setRecipes([]);
+    if (!item_recipe.active) {
+      const a = recipe_recs.concat();
+      const c = recipes[0].q;
+      recipe_recs.map((b) => {
+        if (b.q === c) {
+          let i = a.findIndex((v) => v.q === c);
+          a.splice(i, 1); // mutating a that's why findIndex
+        }
+      });
+      setRecipe_recs(a);
+      setRecipes([]);
+    } else {
+      // for storage
+      const a = recipe_recs.concat();
+      const c = item_recipe.recipe.recipe.label;
+      const i = a.findIndex((v) => v.recipe.label === c);
+      a.splice(i, 1);
+      setRecipe_recs(a);
+      // for recipes
+      const _a = recipes.concat();
+      const _i = _a.findIndex((b) => b.recipe.label === c);
+      _a.splice(_i, 1);
+      setRecipes(_a);
+      setItem_recipe({ active: !item_recipe.active, recipe: {} });
+    }
   };
 
   const selectFilter = () => {
