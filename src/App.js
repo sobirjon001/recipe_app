@@ -4,8 +4,8 @@ import "./App.css";
 import ItemRecipe from "./ItemRecipe";
 
 const App = () => {
-  const APP_ID = "41456eaf";
-  const APP_KEY = "0c679c6c87d15f4a447a8c28afed63b2";
+  const APP_ID = ""; // get your id from edamam.com
+  const APP_KEY = ""; // get your key from edamam.com
   const searchInput = useRef(null);
 
   const [recipes, setRecipes] = useState([]);
