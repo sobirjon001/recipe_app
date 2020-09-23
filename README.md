@@ -4,6 +4,8 @@ It is my pleasure to hear any suggestion to improve. Thank you for interesting i
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+[![Run on Repl.it](https://repl.it/badge/github/sobirjon001/recipe_app)](https://repl.it/github/sobirjon001/recipe_app)
+
 
 ## Available Scripts
 
